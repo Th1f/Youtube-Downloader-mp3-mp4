@@ -1,9 +1,14 @@
+from asyncio import streams
+from cgi import test
 from importlib.metadata import packages_distributions
 from importlib.resources import path
+import string
 from tkinter import*
 from tkinter import filedialog;
 from PIL import Image,ImageTk;
 from pytube import YouTube;
+import threading;
+threadPoint =0;
 mp3 = False;
 mp4 = False;
 
@@ -18,6 +23,19 @@ def SelectDirectory():
     test.grid(row=0, column=0,padx=15);
     test1.grid(row=0, column=1,padx=15);
     downloadButt.pack(pady=20);
+    errorLabel.pack();
+    
+def percent(tem,total):
+    perc = (float(tem)/total*float(100));
+    
+def progress(stream,chunk,bytes_remaining):
+    size = stream.filesize;
+    bytesDone = size - bytes_remaining;
+    pct = bytesDone/size*100;
+    stringPct= str(round(pct,2));
+    errorLabel.config(text="Status:"+stringPct+"%");
+
+
     
 def mp3():
     global mp4;
@@ -31,23 +49,30 @@ def mp4():
     mp3 = False;
     mp4 = True;
     
+def star():
+    downloadButt.config(state=DISABLED);
+    errorLabel.config(text="Download has started");
+    t1 = threading.Thread(target=Download);
+    t1.start();
+    
+    
 def Download():
     link = input.get();
     path = instructLabel.cget("text");
+    global threadPoint;
     try:
         if(mp4 or (mp4 == False and mp3 == False )):
-            downloadVid = YouTube(link).streams.get_highest_resolution().download(output_path=path);
+            downloadVid = YouTube(link,on_progress_callback=progress).streams.get_highest_resolution().download(output_path=path);
         if(mp3):
             try:
-                downloadVid = YouTube(link).streams.get_audio_only().download(filename= YouTube(link).title+".mp3",output_path=path);
+                downloadVid = YouTube(link,on_progress_callback=progress).streams.get_audio_only().download(filename= YouTube(link).title+".mp3",output_path=path);
             except:
-                downloadVid = YouTube(link).streams.get_audio_only().download(output_path=path);
+                downloadVid = YouTube(link,on_progress_callback=progress).streams.get_audio_only().download(output_path=path);
         errorLabel.config(text="Download completed");
-        errorLabel.pack();
     except:
         errorLabel.config(text="Please Enter a Valid Link");
-        errorLabel.pack();
-    
+    threadPoint= threadPoint+1;
+    downloadButt.config(state=NORMAL);
 #Setup
 window = Tk();
 window.title("Youtube Downloader");
@@ -68,13 +93,14 @@ input = Entry(window, width=40);
 dicButt = Button(window,text="Select",command=SelectDirectory);
 instructLabel = Label(window, text="Please Select Directory");
 inputLabel = Label(window, text="Enter Download Link", font=("Arial",15) );
-downloadButt = Button(window, text="Download", command=Download);
-errorLabel = Label(window, text="Please Enter a valid link");
+downloadButt = Button(window, text="Download", command=star);
+errorLabel = Label(window, text="");
 
 #Show
 title.pack(pady=10);
 label.pack();
 instructLabel.pack(pady=10);
 dicButt.pack(pady=15);
+
 #test
 window.mainloop();
