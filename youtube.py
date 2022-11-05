@@ -8,6 +8,7 @@ from tkinter import*
 from tkinter import Text, Tk
 import tkinter as tk;
 from tkinter import filedialog
+from turtle import width
 from PIL import Image,ImageTk;
 from pytube import YouTube;
 import threading;
@@ -17,12 +18,16 @@ from io import BytesIO
 threadPoint =0;
 mp3 = False;
 mp4 = False;
+path1 = '';
 
 def SelectDirectory():
+    global path1;
     path = filedialog.askdirectory();
+    path1 = path
     #instructLabel.config(text=path);
     ok = path.replace("/",">");
     dicInput.insert(0,ok);
+    dicInput.config(fg='black');
     frame.pack();
     test = Button(frame, text="Audio",command=mp3);
     test1 = Button(frame, text="Video",command=mp4);
@@ -31,7 +36,7 @@ def SelectDirectory():
     hold1.grid(row=0, column=2,padx=15);
     hold2.grid(row=0, column=3,padx=15);
     hold3.grid(row=0, column=4,padx=15);
-    downloadButt.pack(pady=20);
+    downloadButt.pack(pady=50);
     errorLabel.pack();
     
     
@@ -57,7 +62,10 @@ def progress(stream,chunk,bytes_remaining):
     errorLabel.config(text="Status:"+stringPct+"%");
 
 def focusOut_1():
-    dicInput.config(fg='grey');
+    if len(dicInput.get() == 0):
+        dicInput.config(fg='grey');
+    if len(dicInput.get() != 0):
+        dicInput(fg='black');
 
     
 def mp3():
@@ -94,8 +102,10 @@ def clear(case) :
         dicInput.delete(0,'end');
     
 def Download():
+    global path1
     link = input.get();
-    #path = instructLabel.cget("text");
+    path = path1;
+    print(path1);
     global threadPoint;
     try:
         if(mp4 or (mp4 == False and mp3 == False )):
@@ -123,7 +133,7 @@ hold3 = Label(frame,text="",bg='white',highlightbackground='white')
 
 #Asset
 imgURL = "logomakr.com/app/1rviyv"
-img = Image.open("youtube.png");
+img = Image.open("title.png");
 
 #Image editing
 resize_img = img.resize((330,245),Image.ANTIALIAS);
@@ -136,18 +146,19 @@ title = Label(window, text="Youtube Downloader", justify="center", font=("Arial"
 label = Label(window, image= Img,bg='white');
 input = Entry(window, width=40,fg='grey');
 dicInput = Entry(window,width=40,fg='grey');
-dicInput.insert(0,"Select directory");
+
 dicInput.bind("<1>",handle_click);
 dicInput.bind("<FocusOut>",focusOut_1);
 dicInput.message = "directoryInput"
+dicInput.insert(0,"Entery Directory");
 input.insert(0,"Enter Download Link");
 input.bind("<FocusIn>",handle_click);
 input.message = "butt1";
 #instructLabel = Label(window,text="Please select directory");
 #dicButt = Button(window,text="Select",command=SelectDirectory);
 inputLabel = Label(window, text="Enter Download Link", font=("Arial",15) );
-downloadButt = Button(window, text="Download", command=star);
-errorLabel = Label(window, text="");
+downloadButt = Button(window, text="Download", command=star,width=40);
+errorLabel = Label(window, text="", bg='white');
 #Show
 label.pack();
 #title.pack();
