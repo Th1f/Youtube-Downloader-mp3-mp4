@@ -7,4 +7,5 @@ This software enables users to download YouTube videos and audio files in a simp
     * Simple and Lightweight: Designed to be easy to use without unnecessary complexities.
 
 ## Installation:
-    * Clone the repository.
+    1.Clone the repository.
+    2.Run the youtube.exe 
